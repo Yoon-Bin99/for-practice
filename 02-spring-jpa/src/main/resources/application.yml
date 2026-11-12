@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: spring-jpa-practice
+  datasource:
+    # LOCK_TIMEOUT: 비관적 락 대기 시간(ms). 동시성 실습에서 대기가 길어지므로 넉넉하게
+    url: jdbc:h2:mem:shop;MODE=MySQL;LOCK_TIMEOUT=10000
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 20
+  mvc:
+    format:
+      date: iso              # ?from=2026-11-01 형태의 LocalDate 바인딩
+  h2:
+    console:
+      enabled: true          # http://localhost:8080/h2-console  (JDBC URL: jdbc:h2:mem:shop)
+  jpa:
+    open-in-view: false      # OSIV off: 컨트롤러에서 지연 로딩하면 LazyInitializationException (일부러 관찰해 보기)
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: true    # N+1 실습에서 쿼리 수를 세기 위해 사용
+        # [N+1 실습 3단계] 아래 주석을 풀고 /practice/n-plus-one?mode=batch 결과를 비교해 보세요.
+        # default_batch_fetch_size: 100
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: warn
+    com.study.shop: debug

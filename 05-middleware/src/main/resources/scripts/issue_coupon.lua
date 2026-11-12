@@ -1,0 +1,15 @@
+-- [실습 R4] 선착순 쿠폰 발급 Lua 스크립트 (관련 문서: 미들웨어 01.Redis/03.Redis활용패턴.md)
+--
+-- KEYS[1] = coupon:{couponId}:issued   (발급받은 회원 ID 를 담는 Set)
+-- ARGV[1] = 회원 ID
+-- ARGV[2] = 최대 발급 수량
+--
+-- 반환: 1 = 발급 성공, -1 = 이미 발급받음, -2 = 수량 소진
+--
+-- TODO R4-1. 아래 순서를 Lua 로 작성하세요.
+--  1) SISMEMBER KEYS[1] ARGV[1] 가 1 이면 return -1
+--  2) SCARD KEYS[1] 가 tonumber(ARGV[2]) 이상이면 return -2
+--  3) SADD KEYS[1] ARGV[1] 후 return 1
+--  포인트: Redis 는 스크립트 실행 중 다른 명령을 끼워 넣지 않는다 → "확인 후 추가"가 원자적으로 실행된다.
+--         Java 에서 SISMEMBER, SCARD, SADD 를 따로 호출하면 그 사이에 다른 요청이 끼어들어 초과 발급된다.
+return 1 -- TODO R4-1: 지금은 무조건 성공 → 수량 초과·중복 발급

@@ -1,0 +1,88 @@
+### IntelliJ HTTP Client: 각 요청 왼쪽의 ▶ 버튼으로 실행
+
+### [2-1] 주문 생성 (정상)
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "memberId": 1,
+  "zipcode": "06123",
+  "street": "서울시 강남구 테헤란로",
+  "detail": "101호",
+  "lines": [
+    { "productId": 1, "quantity": 2 },
+    { "productId": 2, "quantity": 1 }
+  ]
+}
+
+### [2-1, 2-3, 2-4] 재고 부족 주문 → 409, 감사 로그는 남고(REQUIRES_NEW) 알림은 안 나가야(AFTER_COMMIT) 함
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "memberId": 1,
+  "zipcode": "06123",
+  "street": "서울시 강남구",
+  "lines": [ { "productId": 1, "quantity": 99 }, { "productId": 3, "quantity": 100 } ]
+}
+
+### [2-3] 감사 로그 확인
+GET http://localhost:8080/practice/audit-logs
+
+### [7-2, 7-3] 검증 실패 → 400 + errors 목록
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "zipcode": "12345678901",
+  "street": " ",
+  "lines": [ { "productId": 1, "quantity": 0 } ]
+}
+
+### 주문 조회
+GET http://localhost:8080/api/orders/1
+
+### [2-2, 1-4] 주문 취소 → 재고 복구 확인은 H2 콘솔에서 (http://localhost:8080/h2-console)
+POST http://localhost:8080/api/orders/1/cancel
+
+### [1-4] 같은 주문 다시 취소 → 409 O003
+POST http://localhost:8080/api/orders/1/cancel
+
+### [4] QueryDSL 동적 검색 (조건을 빼거나 바꿔 보세요)
+GET http://localhost:8080/api/orders?status=ORDERED&memberName=김&minPrice=3000&page=0&size=5
+
+### [4-4] 날짜 경계값: 오늘 날짜를 to 로 넣었을 때 오늘 주문이 포함되는지
+GET http://localhost:8080/api/orders?to=2026-12-31
+
+### [3] N+1: lazy → fetch-join → entity-graph → paging 순서로 sqlCount 비교
+GET http://localhost:8080/practice/n-plus-one?mode=lazy
+
+###
+GET http://localhost:8080/practice/n-plus-one?mode=fetch-join
+
+###
+GET http://localhost:8080/practice/n-plus-one?mode=entity-graph
+
+### application.yml 의 default_batch_fetch_size 주석을 풀기 전/후 비교
+GET http://localhost:8080/practice/n-plus-one?mode=paging
+
+### [5] 재고 동시성: unsafe → pessimistic → atomic → optimistic 순서로 finalStock, elapsedMs 비교
+POST http://localhost:8080/practice/stock/unsafe
+
+###
+POST http://localhost:8080/practice/stock/pessimistic
+
+###
+POST http://localhost:8080/practice/stock/atomic
+
+###
+POST http://localhost:8080/practice/stock/optimistic
+
+### 재고(10)보다 요청(100)이 많을 때: 성공 10, 실패 90, 재고 0 이어야 함
+POST http://localhost:8080/practice/stock/pessimistic?requests=100&stock=10
+
+### [2-5] 자기 호출: "트랜잭션 활성화=true" 가 나와야 함
+GET http://localhost:8080/practice/self-invocation
+
+### [OSIV] 서비스 밖 지연 로딩 → 500 (LazyInitializationException 로그 확인)
+GET http://localhost:8080/api/orders/2/osiv-test

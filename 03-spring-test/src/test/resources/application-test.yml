@@ -1,0 +1,3 @@
+logging:
+  level:
+    org.hibernate.SQL: info      # 테스트 로그를 줄이기 위해 SQL 로그 끔 (필요하면 debug)

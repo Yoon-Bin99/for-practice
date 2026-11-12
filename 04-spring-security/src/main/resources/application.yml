@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: spring-security-practice
+  datasource:
+    url: jdbc:h2:mem:auth;MODE=MySQL
+    username: sa
+    password:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+
+# ⚠️ 실습용 키입니다. 실제 서비스에서는 절대 yml 에 커밋하지 말고 환경 변수·Secrets Manager 로 주입하세요.
+#    새 키 만들기: openssl rand -base64 32
+app:
+  jwt:
+    secret: ${JWT_SECRET:c3R1ZHktand0LXNlY3JldC1rZXktbXVzdC1iZS0zMi1ieXRlcyE=}
+    access-token-ttl: 15m
+    refresh-token-ttl: 14d
+  crypto:
+    aes-key: ${AES_KEY:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
+    hmac-key: ${HMAC_KEY:aG1hYy1ibGluZC1pbmRleC1rZXktZm9yLXN0dWR5LTEyMzQ=}
+
+logging:
+  level:
+    org.springframework.security: info     # 필터 체인 동작을 보고 싶으면 debug / trace
+    com.study.auth: debug

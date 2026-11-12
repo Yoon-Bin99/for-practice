@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: batch-practice
+  datasource:
+    url: jdbc:h2:mem:batch;MODE=MySQL
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always                 # schema.sql 실행
+  batch:
+    jdbc:
+      initialize-schema: always    # BATCH_JOB_INSTANCE 등 메타데이터 테이블 생성
+    job:
+      enabled: false               # 애플리케이션 시작 시 Job 자동 실행 끄기 (API·스케줄러로 실행)
+
+logging:
+  level:
+    com.study.batch: debug
+    org.springframework.batch: info

@@ -1,0 +1,15 @@
+plugins {
+    // JDK 21 이 설치되어 있지 않으면 Gradle 이 처음 빌드할 때 자동으로 내려받는다 (Foojay Toolchain Resolver)
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+// 루트에서 열면 6개 실습 프로젝트를 한 번에 인식하기 위한 Composite Build 설정입니다.
+// 각 프로젝트는 독립적인 Gradle 프로젝트라서 폴더 하나만 따로 열어도 동작합니다.
+rootProject.name = 'study-practice'
+
+includeBuild '01-java-basics'
+includeBuild '02-spring-jpa'
+includeBuild '03-spring-test'
+includeBuild '04-spring-security'
+includeBuild '05-middleware'
+includeBuild '06-batch'

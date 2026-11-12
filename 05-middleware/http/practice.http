@@ -1,0 +1,59 @@
+### 먼저 docker compose up -d 로 Redis, Kafka 를 띄운 뒤 애플리케이션을 실행하세요.
+### Kafka UI: http://localhost:8989
+
+### [R1] Cache-Aside: 두 번 호출해서 source(DB → CACHE)와 elapsedMs 비교
+GET http://localhost:8080/api/products/1/cache-aside
+
+###
+GET http://localhost:8080/api/products/1/cache-aside
+
+### [R1-2] 가격 변경 → 다음 조회가 DB 에서 새 가격을 가져와야 함
+POST http://localhost:8080/api/products/1/cache-aside/price?price=79000
+
+###
+GET http://localhost:8080/api/products/1/cache-aside
+
+### [R2] @Cacheable: 콘솔의 "DB 조회" 로그가 첫 호출에만 찍히는지
+GET http://localhost:8080/api/products/2/cacheable
+
+###
+POST http://localhost:8080/api/products/2/cacheable/price?price=35000
+
+### [R3] 분산 락: finalStock = 100 - success 여야 함 (TODO 전에는 갱신 분실)
+POST http://localhost:8080/practice/lock-stock?requests=100
+
+### [R4] 선착순 쿠폰 경쟁: success = redisIssued = dbIssued = 100
+POST http://localhost:8080/practice/coupon-race?requests=300
+
+### [R6] 레이트 리밋: 10초 안에 6번째 요청부터 429
+POST http://localhost:8080/api/coupons/1/issue?memberId=7
+
+### [R5] 랭킹
+POST http://localhost:8080/api/ranking?member=kim&score=120
+
+###
+POST http://localhost:8080/api/ranking?member=lee&score=300
+
+###
+POST http://localhost:8080/api/ranking?member=kim&score=250
+
+###
+GET http://localhost:8080/api/ranking?n=3
+
+###
+GET http://localhost:8080/api/ranking/kim
+
+### [K1] 주문 → outbox 저장 (Kafka 를 꺼도 주문은 성공해야 함)
+POST http://localhost:8080/api/orders?memberId=1&amount=50000
+
+### [K2] outbox 상태: PENDING → SENT 로 바뀌는지 (1초마다 릴레이)
+GET http://localhost:8080/practice/outbox
+
+### [K3] 포인트 확인 (50000원의 1% = 500)
+GET http://localhost:8080/practice/points/1
+
+### [K3] 같은 이벤트 중복 발행 → pointHistoryCount 가 1 이어야 함 (주문 ID 는 위 응답 참고)
+POST http://localhost:8080/practice/duplicate-event/1
+
+### [K4] 금액 음수 → 처리 실패 → DLT (콘솔 "☠️ DLT 도착")
+POST http://localhost:8080/api/orders?memberId=1&amount=-100

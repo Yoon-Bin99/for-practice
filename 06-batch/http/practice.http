@@ -1,0 +1,17 @@
+### [B1~B4] 휴면 전환 Job (baseDate 를 오늘 날짜로)
+POST http://localhost:8080/batch/dormant?baseDate=2026-11-12
+
+### 결과 확인: DORMANT 수 = expectedDormant, vipDormant = 0 이어야 함
+GET http://localhost:8080/batch/stats
+
+### 같은 파라미터로 다시 실행 → ALREADY_COMPLETED (중복 실행 방지)
+POST http://localhost:8080/batch/dormant?baseDate=2026-11-12
+
+### [B5] 일별 매출 집계 (어제 날짜로) → 다른 날짜로 여러 번 실행해 보기
+POST http://localhost:8080/batch/daily-sales?date=2026-11-11
+
+###
+GET http://localhost:8080/batch/stats
+
+### 실행 이력 (BATCH_JOB_EXECUTION 메타데이터)
+GET http://localhost:8080/batch/executions
